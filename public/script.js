@@ -32,8 +32,7 @@ document.addEventListener('DOMContentLoaded', () => {
     })
 
 
-    function getWeather(cityName, id) {
-
+    function getWeather(cityName) {
         let strRequest = 'http://api.openweathermap.org/data/2.5/weather?q=' + cityName + '&appid=c4ecaf46d9687ed18d60681ab359b68f&units=metric';
         let xhttp = new XMLHttpRequest();
         xhttp.open('GET', strRequest, true);
@@ -44,7 +43,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
                 //добавляю инфу пришедшую с запроса
-                answerContainer.innerHTML += '<div class="item" data-attr=' + id + '>' + `<p class='name'>${currObj.name}</p>` + `<div class="icon" style:""></div>` +
+                answerContainer.innerHTML += '<div class="item">' + `<input class='city-name name' value="${currObj.name} ">` + `<div class="icon" style:""></div>` +
                     `<p class='temp'>${Math.round(currObj.main.temp)}°C</p>` +
                     `<p class='feels'>Feels like ${Math.round(currObj.main.feels_like)}°C</p>` +
                     `<p>Min: ${Math.round(currObj.main.temp_min)}°C</p>` +
@@ -55,7 +54,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 itemIcon.style.backgroundImage = 'url(http://openweathermap.org/img/wn/' + iconCode + '@2x.png)';
 
                 let items = document.querySelectorAll('.item');
+                let itemsInput = document.querySelectorAll('.city-name');
                 removeCity(items);
+                changeCity(itemsInput);
             }
         })
     }
@@ -74,7 +75,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 //виджет с геолокацией
-    let success = (position) => {
+    const success = (position) => {
         const lat = position.coords.latitude;
         const lon = position.coords.longitude;
         let strRequest = 'https://api.openweathermap.org/data/2.5/weather?lat=' + lat + '&lon=' + lon + '&appid=e50ec27dac6fac01c3d6889743f8b9d5&units=metric';
@@ -87,7 +88,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     return Promise.reject(currObj.status);
                 }
             }))
-            .then(currObj => currentLocation.innerHTML += `<p class='name'>${currObj.name}</p>` + `<div class="icon" style="background-image:url(http://openweathermap.org/img/wn/${currObj.weather[0].icon}@2x.png)"></div>` +
+            .then(currObj => currentLocation.innerHTML += `<p class='name' style="background-color:transparent">${currObj.name}</p>` + `<div class="icon" style="background-image:url(http://openweathermap.org/img/wn/${currObj.weather[0].icon}@2x.png)"></div>` +
                 `<p class='temp'>${Math.round(currObj.main.temp)}°C</p>` +
                 `<p class='feels'>Feels like ${Math.round(currObj.main.feels_like)}°C</p>` +
                 `<p>Min: ${Math.round(currObj.main.temp_min)}°C</p>` +
@@ -95,7 +96,7 @@ document.addEventListener('DOMContentLoaded', () => {
             );
     }
 
-    let error = () => {
+    const error = () => {
         currentLocation.parentNode.removeChild(currentLocation);
     }
     navigator.geolocation.getCurrentPosition(success, error);
@@ -140,5 +141,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
         timeout();
     }
+    //редактирование города
+    function changeCity( items) {
+        for (let item of items) {
+            item.addEventListener('blur',function(){
+                console.log(2);
+                let changedValue = item.value;
+                item.parentNode.remove();
+                getWeather(changedValue);
+            });
+        }
 
+    };
 })
+
